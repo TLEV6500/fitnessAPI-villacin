@@ -1,7 +1,22 @@
-const { expressjwt } = require("express-jwt");
-require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
-module.exports.authenticate = expressjwt({
-    secret: process.env.JWT_SECRET,
-    algorithms: ["HS256"],
-});
+module.exports.authenticate = (req, res, next) => {
+    const token = req.header("Authorization")?.split(" ")[1];
+    if (!token)
+        return res.status(401).json({
+            success: false,
+            message: "Access denied",
+        });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        // console.log("authenticate", req.user);
+        next();
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: "Invalid token",
+        });
+    }
+};

@@ -1,37 +1,23 @@
-const express = require("express");
 const mongoose = require("mongoose");
-const { authenticate } = require("./middlewares/auth");
+const express = require("express");
 require("dotenv").config();
 
-mongoose.connection.once("connected", () => {
-    console.log("MongoDB Connected.");
+mongoose.connection.on("open", () => {
+    console.log("Connected to MongoDB");
 });
+
 mongoose.connect(process.env.MONGODB_URI);
 
+const UserRouter = require("./routes/user");
+const WorkoutRouter = require("./routes/workout");
+const { authenticate } = require("./middlewares/auth");
+const { errorHandler } = require("./middlewares/error");
+
 const app = express();
-
 app.use(express.json());
-app.get("/", (req, res) => {
-    res.send("Hello world!");
-});
-
-//Routes Middleware
-const workoutRoutes = require("./routes/workout");
-const userRoutes = require("./routes/user");
-
-app.use("/workouts", authenticate, workoutRoutes);
-app.use("/users", userRoutes);
-
-app.use((err, req, res, next) => {
-    if (err.name === "UnauthorizedError") {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid or missing authentication token.",
-        });
-    }
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-});
+app.use("/users", UserRouter);
+app.use("/workouts", authenticate, WorkoutRouter);
+app.use(errorHandler);
 
 if (require.main === module) {
     app.listen(process.env.PORT || 4000, () => {
@@ -39,4 +25,7 @@ if (require.main === module) {
     });
 }
 
-module.exports = { app, mongoose };
+module.exports = {
+    app,
+    mongoose,
+};
