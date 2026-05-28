@@ -1,11 +1,12 @@
 {
+    "url": "https://fitnessapi-villacin.onrender.com/",
     "endpoints": {
-        "login":"/login",
-        "register":"/register",
+        "login": "/login",
+        "register": "/register",
         "addWorkout": "/addWorkout",
-        "getMyWorkouts":"/getMyWorkouts",
-        "updateWorkout":"/updateWorkout",
-        "deleteWorkout":"/deleteWorkout",
-        "completeWorkoutStatus":"/completeWorkoutStatus"
+        "getMyWorkouts": "/getMyWorkouts",
+        "updateWorkout": "/updateWorkout",
+        "deleteWorkout": "/deleteWorkout",
+        "completeWorkoutStatus": "/completeWorkoutStatus"
     }
 }
