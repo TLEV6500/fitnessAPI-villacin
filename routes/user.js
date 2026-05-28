@@ -1,7 +1,7 @@
 const express = require("express");
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
-const { sendHandlerErrors } = require("../utils/sendMongooseErrors");
+const { sendHandlerErrors } = require("../utils/sendHandlerErrors");
 const { hashPassword, comparePassword } = require("../utils/password");
 const { authenticate } = require("../middlewares/auth");
 require("dotenv").config();

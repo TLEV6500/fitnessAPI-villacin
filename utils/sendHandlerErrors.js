@@ -5,9 +5,13 @@ module.exports.sendHandlerErrors = (err, res) => {
             "Called sendMongooseErrors with non-Mongoose error:",
             err,
         );
-        res.status(err.status ?? 500).json({ messages: [err.message] });
+        res.status(err.status ?? 500).json({
+            success: false,
+            messages: [err.message],
+        });
     }
     res.status(400).json({
+        success: false,
         messages: Object.values(err.errors).map((e) => e.message),
     });
 };
