@@ -1,4 +1,4 @@
-module.exports.sendMongooseErrors = (err, res) => {
+module.exports.sendHandlerErrors = (err, res) => {
     if (!res) throw new Error("res object must be passed as second argument");
     if (!err.errors) {
         console.error(
