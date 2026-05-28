@@ -3,30 +3,52 @@ const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { sendMongooseErrors } = require("../utils/sendMongooseErrors");
 const { hashPassword, comparePassword } = require("../utils/password");
+const { authenticate } = require("../middlewares/auth");
 require("dotenv").config();
 const router = express.Router();
+
+router.get("/:userId", authenticate, async (req, res) => {
+    try {
+        if (!req.auth)
+            throw new Error(
+                "Something happened that's not supposed to happen!",
+            );
+        if (!req.params.userId)
+            throw new (class extends Error {
+                status = 400;
+            })("Missing params: userId");
+        const { email, firstName, lastName, birthDate, id } = req.auth;
+        if (id != req.params.userId)
+            throw new (class extends Error {
+                status = 403;
+            })(`Access denied`);
+        return res.status(200).json({ user: req.auth });
+    } catch (err) {
+        sendMongooseErrors(err, res);
+    }
+});
 
 router.post("/register", async (req, res) => {
     try {
         if (!req.body)
             return res.status(400).json({ message: "No inputs found" });
-        const { username, password, firstName, lastName, birthDate } = req.body;
+        const { email, password, firstName, lastName, birthDate } = req.body;
         if (!password)
             throw new (class extends Error {
                 status = 400;
-            })("Password is undefined");
+            })("Missing inputs");
         if (typeof password !== "string")
             throw new Error("Password is invalid");
-        const hashedPassword = hashPassword(password);
-        await User.create({
-            username,
+        const hashedPassword = await hashPassword(password);
+        const user = await User.create({
+            email,
             password: hashedPassword,
             firstName,
             lastName,
             birthDate,
         });
         const token = jwt.sign(
-            { username, firstName, lastName, birthDate },
+            { email, firstName, lastName, birthDate, id: user.id },
             process.env.JWT_SECRET,
             { expiresIn: "1d" },
         );
@@ -40,8 +62,8 @@ router.post("/login", async (req, res) => {
     try {
         if (!req.body)
             return res.status(400).json({ message: "No inputs found" });
-        const { username, password } = req.body;
-        const user = await User.findOne({ username }).exec();
+        const { email, password } = req.body;
+        const user = await User.findOne({ email }).exec();
         const isPasswordCorrect = await comparePassword(
             password,
             user.password,
@@ -49,10 +71,11 @@ router.post("/login", async (req, res) => {
         if (isPasswordCorrect) {
             const token = jwt.sign(
                 {
-                    username: user.username,
+                    email: user.email,
                     firstName: user.firstName,
                     lastName: user.lastName,
                     birthDate: user.birthDate,
+                    id: user.id,
                 },
                 process.env.JWT_SECRET,
                 { expiresIn: "1d" },
