@@ -66,7 +66,7 @@ module.exports.register = async (req, res) => {
 };
 
 module.exports.getDetails = async (req, res) => {
-    const { password, user } = await User.findById(req.user.id).lean();
+    const { password, ...user } = await User.findById(req.user.id).lean();
     if (!user) {
         return res.status(404).json({ message: "User not found" });
     }

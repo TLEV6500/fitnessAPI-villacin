@@ -70,3 +70,41 @@ module.exports.updateWorkout = async (req, res) => {
         workout,
     });
 };
+
+module.exports.deleteWorkout = async (req, res) => {
+    const workout = await Workout.findOneAndDelete({
+        userId: req.user.id,
+        _id: req.params.workoutId,
+    });
+    if (!workout) {
+        return res.status(404).json({
+            success: false,
+            message: "Workout not found",
+        });
+    }
+    res.status(200).json({
+        success: true,
+        workout,
+    });
+};
+
+module.exports.completeWorkoutStatus = async (req, res) => {
+    const workout = await Workout.findOneAndUpdate(
+        {
+            userId: req.user.id,
+            _id: req.params.workoutId,
+        },
+        { status: "completed" },
+        { new: true },
+    ).lean();
+    if (!workout) {
+        return res.status(404).json({
+            success: false,
+            message: "Workout not found",
+        });
+    }
+    res.status(200).json({
+        success: true,
+        workout,
+    });
+};

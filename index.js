@@ -12,8 +12,14 @@ const UserRouter = require("./routes/user");
 const WorkoutRouter = require("./routes/workout");
 const { authenticate } = require("./middlewares/auth");
 const { errorHandler } = require("./middlewares/error");
+const cors = require("cors");
 
 const app = express();
+app.use(
+    cors({
+        origin: "*",
+    }),
+);
 app.use(express.json());
 app.use("/users", UserRouter);
 app.use("/workouts", authenticate, WorkoutRouter);
