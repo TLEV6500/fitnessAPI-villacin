@@ -60,10 +60,8 @@ module.exports.register = async (req, res) => {
                     "Email already in use. Please use a different email, or login instead.",
             });
         }
-        return res.status(500).json({
-            success: false,
-            message: "Failed to register",
-        });
+        err.message = "Failed to register. " + err.message;
+        throw err;
     }
 };
 

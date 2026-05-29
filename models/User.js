@@ -18,7 +18,6 @@ const UserSchema = new Schema({
     password: { type: String, required: [true, "Password is required"] },
     birthDate: {
         type: Date,
-        required: [true, "Birth date is required"],
     },
 });
 
